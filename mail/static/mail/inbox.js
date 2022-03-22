@@ -24,6 +24,8 @@ document.querySelector('#compose-body').value = '';
 
 function send_email(recipients_email, subject_email, body_email) {
 
+  console.log('send_send_email111')
+
   fetch('/emails', {
     method: 'POST',
     body: JSON.stringify({
@@ -34,7 +36,7 @@ function send_email(recipients_email, subject_email, body_email) {
   })
     .then(response => response.json())
     .then(result => {
-      console.log(result);
+      console.log('send_send_email222' + result);
     });
 }
 
@@ -48,6 +50,7 @@ function load_mailbox(mailbox) {
   // document.getElementById('#mails-inbox').value = 'hah';
 
 
+  // TODO: show emails inbox
   // Get emails
   fetch('emails/inbox')
     .then(response => response.json())
