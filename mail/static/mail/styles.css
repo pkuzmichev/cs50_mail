@@ -3,6 +3,65 @@ textarea {
 }
 
 #mails-inbox {
-    background-color: aqua;
-    color: blue;
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+}
+
+.inbox-mail {
+    border-style: solid;
+    border-width: 1px;
+    display: flex;
+    cursor: pointer;
+    /* justify-content: space-between; */
+}
+
+.inbox-mail {
+    border-style: solid;
+    border-width: 1px;
+    display: flex;
+    cursor: pointer;
+    /* justify-content: space-between; */
+}
+
+.sender-inbox {
+    font-weight: bold;
+    padding: 5px;
+    padding-right: 15px;
+}
+
+.subject-inbox {
+    padding: 5px;
+    width: 100%;
+    text-align: left;
+
+}
+
+
+.timestamp {
+    width: 100%;
+}
+
+.timestamp-inbox {
+    text-align: right;
+    padding: 5px;
+    color: gray;
+}
+
+.inbox-mail {
+    border-style: solid;
+    border-width: 1px;
+    display: flex;
+    cursor: pointer;
+}
+
+#read {
+    background-color: gainsboro;
+}
+
+#unread {
+    background-color: white;
+}
+
+.body-mail {
+    white-space: pre-line;
 }
