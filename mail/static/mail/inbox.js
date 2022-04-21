@@ -13,10 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
   load_mailbox('inbox');
 });
 
-// TODO:
-// 1. --reply;
-// 2. archive
-
 function compose_email(to='', subject='', body='') {
 
   // Show compose view and hide other views
@@ -54,8 +50,7 @@ function load_email(elem_id) {
             <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
             <button class="btn btn-sm btn-outline-primary" id="archive"></button>
             <hr>
-            <div class='body-mail'>${emails['body'].replace(/(?:\r\n|\r|\n)/g, '<br>')
-}</div>
+            <div class='body-mail'>${emails['body'].replace(/(?:\r\n|\r|\n)/g, '<br>')}</div>
           </div>`
       })
       if (emails['archived'] == true) {
@@ -73,8 +68,6 @@ function load_email(elem_id) {
       read: true
     })
   })
-  // TODO:
-  // 1. use request emails/<int:email_id> for get full email for show!
 }
 
 function reply(recipient, subject, body, timestamp) {
@@ -114,6 +107,14 @@ function load_mailbox(mailbox) {
 
   // Get emails
   if (mailbox === 'inbox') {
+
+    console.log('inbox click');
+
+    var inbox_mails = document.querySelectorAll('#mails-inbox');
+    inbox_mails.forEach(mail => {
+      mail.innerHTML = ``
+    })
+
     fetch('emails/inbox')
       .then(response => response.json())
       .then(emails => {
@@ -200,5 +201,4 @@ function load_mailbox(mailbox) {
 }
 
 // TODO:
-// 1. show email and buttons;
 // 2. archived mailbox.
