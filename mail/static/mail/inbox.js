@@ -46,20 +46,24 @@ function load_email(elem_id) {
             <div class='sender-mail'><b>From: </b>${emails['sender']}</div>
             <div class='recipients-mail'><b>To: </b>${emails['recipients']}</div>
             <div class='subject-mail'><b>Subject: </b>${emails['subject']}</div>
-            <div class='timestamp'><div class='timestamp-mail'><b>Timestamp: </b>${emails['timestamp']}</div></div>
+            <div class='timestamp-mail'><b>Timestamp: </b>${emails['timestamp']}</div>
             <button class="btn btn-sm btn-outline-primary" id="reply">Reply</button>
             <button class="btn btn-sm btn-outline-primary" id="archive"></button>
             <hr>
             <div class='body-mail'>${emails['body'].replace(/(?:\r\n|\r|\n)/g, '<br>')}</div>
           </div>`
       })
+
+      document.querySelector('#archive').addEventListener('click', () => archive(emails));
+      console.log('json archive:', emails['archived'] == true);
       if (emails['archived'] == true) {
+        console.log('unarchive');
         document.querySelector('#archive').innerText = "Unarchive";
       } else {
+        console.log('archive');
         document.querySelector('#archive').innerText = "Archive";
       }
       document.querySelector('#reply').addEventListener('click', () => reply(emails['sender'], emails['subject'], emails['body'], emails['timestamp']));
-      document.querySelector('#archive').addEventListener('click', print);
     });
 
   fetch(`/emails/${elem_id}`, {
@@ -68,6 +72,34 @@ function load_email(elem_id) {
       read: true
     })
   })
+}
+
+function archive(emails) {
+  console.log('emails', emails);
+  console.log('emails_id', emails['id']);
+
+  if (emails['archived'] == false) {
+    // emails.setAttribute('id', 'archived');
+
+    fetch(`/emails/${emails['id']}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: true
+      })
+    })
+
+  } else {
+    // emails.setAttribute('id', 'unarchive');
+
+    fetch(`/emails/${emails['id']}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: false
+      })
+    })
+
+  }
+
 }
 
 function reply(recipient, subject, body, timestamp) {
@@ -107,9 +139,6 @@ function load_mailbox(mailbox) {
 
   // Get emails
   if (mailbox === 'inbox') {
-
-    console.log('inbox click');
-
     var inbox_mails = document.querySelectorAll('#mails-inbox');
     inbox_mails.forEach(mail => {
       mail.innerHTML = ``
@@ -153,15 +182,12 @@ function load_mailbox(mailbox) {
           mails.forEach(mail => {
             mail.innerHTML = ``
           })
-
-          // TODO:
-          // 1. timestamp not show :(
           for (let i = 0; i < Object.keys(emails).length; i++) {
             mails.forEach(mail => {
               mail.innerHTML += `<div class='inbox-mail'>
             <div class='sender-inbox' id='${emails[i]['id']}'>${emails[i]['recipients']}</div>
             <div class='subject-inbox' id='${emails[i]['id']}'>${emails[i]['subject']}</div>
-            <div class='timestamp'><div class='timestamp-inbox' id='${emails[i]['id']}> timestamp + ${emails[i]['timestamp']}</div></div>
+            <div class='timestamp'>${emails[i]['timestamp']}</div>
           </div>`
             })
           }
@@ -181,7 +207,6 @@ function load_mailbox(mailbox) {
           mails.forEach(mail => {
             mail.innerHTML = ``
           })
-
           for (let i = 0; i < Object.keys(emails).length; i++) {
             mails.forEach(mail => {
               mail.innerHTML += `<div class='inbox-mail'>
@@ -201,4 +226,6 @@ function load_mailbox(mailbox) {
 }
 
 // TODO:
-// 2. archived mailbox.
+// 1. load archive mail.
+// 2. change text archive => unarchive
+// 3. fix bugs (todo's) 
