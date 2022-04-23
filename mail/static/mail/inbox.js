@@ -8,12 +8,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document.querySelector('#mails-inbox').addEventListener('click', (e) => load_email(e.target.id));
   document.querySelector('#mails-sent').addEventListener('click', (e) => load_email(e.target.id));
+  document.querySelector('#mails-archive').addEventListener('click', (e) => load_email(e.target.id));
 
   // By default, load the inbox
   load_mailbox('inbox');
 });
 
-function compose_email(to='', subject='', body='') {
+function compose_email(to = '', subject = '', body = '') {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -28,19 +29,18 @@ function compose_email(to='', subject='', body='') {
 }
 
 function load_email(elem_id) {
-
   fetch(`/emails/${elem_id}`, {
     method: 'GET'
   })
+
     .then(response => response.json())
     .then(emails => {
-      console.log('archive object:', emails);
+
       document.querySelector('#mails-inbox').style.display = 'none';
       document.querySelector('#emails-view').style.display = 'none';
       document.querySelector('#mail-view').style.display = 'block';
 
       var mails = document.querySelectorAll('#mail-view');
-
       mails.forEach(mail => {
         mail.innerHTML = `<div class='mail'>
             <div class='sender-mail'><b>From: </b>${emails['sender']}</div>
@@ -54,15 +54,12 @@ function load_email(elem_id) {
           </div>`
       })
 
-      document.querySelector('#archive').addEventListener('click', () => archive(emails));
-      console.log('json archive:', emails['archived'] == true);
       if (emails['archived'] == true) {
-        console.log('unarchive');
-        document.querySelector('#archive').innerText = "Unarchive";
+        document.querySelector('#archive').textContent = "Unarchive";
       } else {
-        console.log('archive');
-        document.querySelector('#archive').innerText = "Archive";
+        document.querySelector('#archive').textContent = "Archive";
       }
+      document.querySelector('#archive').addEventListener('click', () => archive(emails));
       document.querySelector('#reply').addEventListener('click', () => reply(emails['sender'], emails['subject'], emails['body'], emails['timestamp']));
     });
 
@@ -75,36 +72,30 @@ function load_email(elem_id) {
 }
 
 function archive(emails) {
-  console.log('emails', emails);
-  console.log('emails_id', emails['id']);
-
-  if (emails['archived'] == false) {
-    // emails.setAttribute('id', 'archived');
-
-    fetch(`/emails/${emails['id']}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        archived: true
-      })
-    })
-
-  } else {
-    // emails.setAttribute('id', 'unarchive');
-
+  document.querySelector('#archive').disabled = true;
+  if (emails['archived'] == true) {
     fetch(`/emails/${emails['id']}`, {
       method: 'PUT',
       body: JSON.stringify({
         archived: false
       })
     })
-
+    alert('Mail "' + emails['subject'] + '" was remove from archive')
+  } else {
+    fetch(`/emails/${emails['id']}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: true
+      })
+    })
+    alert('Mail "' + emails['subject'] + '" was added to archive');
   }
-
+  load_mailbox('inbox');
 }
 
 function reply(recipient, subject, body, timestamp) {
   let subject_compose = 'Re: ';
-  let body_compose = '\n---\n' + 'On ' + timestamp + ' ' + recipient + ' wrote: \n' + body; 
+  let body_compose = '\n---\n' + 'On ' + timestamp + ' ' + recipient + ' wrote: \n' + body;
 
   if (!subject.startsWith('Re:')) {
     subject_compose += subject;
@@ -112,9 +103,6 @@ function reply(recipient, subject, body, timestamp) {
   } else {
     return compose_email(recipient, subject, body_compose);
   }
-
-  // TODO:
-  // 1. archive button;
 }
 
 function send_email(recipients_email, subject_email, body_email) {
@@ -158,11 +146,11 @@ function load_mailbox(mailbox) {
             <div class='timestamp'><div class='timestamp-inbox' id='${emails[i]['id']}'>${emails[i]['timestamp']}</div></div>
           </div>`
               var unreadElements = document.querySelectorAll('.inbox-mail');
-                if (emails[i]['read'] == true) {
-                  unreadElements[i].setAttribute('id', 'read');
-                } else {
-                  unreadElements[i].setAttribute('id', 'unread');
-                }
+              if (emails[i]['read'] == true) {
+                unreadElements[i].setAttribute('id', 'read');
+              } else {
+                unreadElements[i].setAttribute('id', 'unread');
+              }
             });
           }
         }
@@ -187,7 +175,7 @@ function load_mailbox(mailbox) {
               mail.innerHTML += `<div class='inbox-mail'>
             <div class='sender-inbox' id='${emails[i]['id']}'>${emails[i]['recipients']}</div>
             <div class='subject-inbox' id='${emails[i]['id']}'>${emails[i]['subject']}</div>
-            <div class='timestamp'>${emails[i]['timestamp']}</div>
+            <div class='timestamp' id='${emails[i]['id']}'>${emails[i]['timestamp']}</div>
           </div>`
             })
           }
@@ -210,9 +198,9 @@ function load_mailbox(mailbox) {
           for (let i = 0; i < Object.keys(emails).length; i++) {
             mails.forEach(mail => {
               mail.innerHTML += `<div class='inbox-mail'>
-            <div class='sender-inbox'>${emails[i]['recipients']}</div>
-            <div class='subject-inbox'>${emails[i]['subject']}</div>
-            <div class='timestamp'><div class='timestamp-inbox'>${emails[i]['timestamp']}</div></div>
+            <div class='sender-inbox' id='${emails[i]['id']}'>${emails[i]['recipients']}</div>
+            <div class='subject-inbox' id='${emails[i]['id']}'>${emails[i]['subject']}</div>
+            <div class='timestamp'>${emails[i]['timestamp']}</div></div>
           </div>`
             })
           }
@@ -224,8 +212,3 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
 }
-
-// TODO:
-// 1. load archive mail.
-// 2. change text archive => unarchive
-// 3. fix bugs (todo's) 
